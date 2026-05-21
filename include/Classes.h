@@ -60,44 +60,52 @@
 	#define RLAPI
 #endif
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <stddef.h>
 
 #define Class class_t
 #define Object object_t
 
-#define GetStructureFromPtr(type, object) ((type*)((object)->structure))
-// SFV == Struct From Void*
-#define SFV(type, object) GetStructureFromPtr(type, object)
+#define class_struct(name) struct name { object_t base
+
+#define Self(cls, object) (cls*)object
 
 typedef struct class_t class_t;
 typedef struct object_t object_t;
 
 struct class_t {
+	size_t id;
+	size_t index;
+
 	void (*initTask)(object_t*);
 	void (*cleanupTask)(object_t*);
 
-	object_t* objects;
+	object_t** objects;
 
-	size_t ObjectStructureSizeof;
+	size_t objectSize;
+
 	size_t lastObjectId;
 	size_t objectsCount;
 };
 
 struct object_t {
-	void* structure;
-
 	size_t id;
 	size_t index;
 
 	class_t* root;
 };
 
-RLAPI class_t* RegisterClass(size_t objectStructureSizeof, void (*initTask)(object_t*), void (*cleanupTask)(object_t*));
-
-RLAPI void DestroyAllObjectsAndClasses(void);
-
+RLAPI class_t* RegisterClass(size_t objectSizeof, void (*initTask)(object_t*), void (*cleanupTask)(object_t*));
+RLAPI void DestroyAllClasses(void);
 RLAPI object_t* CreateObject(class_t* cls);
-
 RLAPI void DestroyObject(object_t* object);
+RLAPI void DestroyClass(class_t* cls);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif
