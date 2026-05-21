@@ -51,11 +51,7 @@ endif
 CFLAGS += $(BASE_CFLAGS) $(REL_CFLAGS) $(LIBC_CFLAGS) $(STD) $(POSIX_C_SRC)
 LDFLAGS ?= $(LIBC_LDFLAGS)
 
-LDFLAGS += -lm
-
-ifneq ($(SO_EXT),)
-    LDFLAGS += -lX11
-endif
+LDFLAGS +=
 
 # ==== Paths ====
 

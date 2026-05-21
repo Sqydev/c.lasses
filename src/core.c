@@ -36,45 +36,92 @@
 #include "../include/Classes.h"
 
 #include <stdlib.h>
+#include <stdbool.h>
 
 class_t** Classes = NULL;
 size_t classesCount = 0;
 size_t classesLastIndex = 0;
 
-class_t* RegisterClass(size_t objectStructureSizeof, void (*initTask)(void*), void (*cleanupTask)(void*)) {
+bool Inited = false;
+
+class_t* RegisterClass(size_t objectStructureSizeof, void (*initTask)(object_t*), void (*cleanupTask)(object_t*)) {
 	classesCount++;
 
-	Classes = realloc(Classes, classesCount * sizeof(class_t));
+	Classes = realloc(Classes, classesCount * sizeof(class_t*));
+
+	Classes[classesLastIndex] = malloc(sizeof(class_t));
 
 	Classes[classesLastIndex]->initTask = initTask;
 	Classes[classesLastIndex]->cleanupTask = cleanupTask;
 
 	Classes[classesLastIndex]->objects = NULL;
-	Classes[classesLastIndex]->objetsCount = 0;
+	Classes[classesLastIndex]->objectsCount = 0;
 
 	Classes[classesLastIndex]->ObjectStructureSizeof = objectStructureSizeof;
+
+	Classes[classesLastIndex]->lastObjectId = 0;
 
 	classesLastIndex++;
 
 	return Classes[classesLastIndex - 1];
 }
 
-void* CreateObject(class_t* class) {
-	class->objetsCount++;
+void DestroyAllObjectsAndClasses(void) {
+    for(size_t i = 0; i < classesCount; i++) {
+        for(size_t j = 0; j < Classes[i]->objectsCount; j++) {
+            if(Classes[i]->cleanupTask) {
+				Classes[i]->cleanupTask(&Classes[i]->objects[j]);
+			}
+            free(Classes[i]->objects[j].structure);
+        }
+        free(Classes[i]->objects);
+        free(Classes[i]);
+    }
+    free(Classes);
+    Classes = NULL;
+    classesCount = 0;
+    classesLastIndex = 0;
+}
 
-	class->objects = realloc(class->objects, class->objetsCount * sizeof(object_t));
-	class->objects->structure = realloc(class->objects, class->objetsCount * class->ObjectStructureSizeof);
+object_t* CreateObject(class_t* cls) {
+	if(!Inited) { atexit(DestroyAllObjectsAndClasses); Inited = true; }
 
-	class->objects[class->objetsCount - 1].root = class;
+	cls->objectsCount++;
 
-	class->objects[class->objetsCount - 1].id = class->lastObjectId;
-	class->objects[class->objetsCount - 1].id = class->lastObjectId;
+	cls->objects = realloc(cls->objects, cls->objectsCount * sizeof(object_t));
+	cls->objects[cls->objectsCount - 1].structure = calloc(1, cls->ObjectStructureSizeof);
 
-	class->initTask(&class->objects[class->objetsCount - 1]);
+	cls->objects[cls->objectsCount - 1].root = cls;
 
-	return &class->objects[class->objetsCount - 1];
+	cls->objects[cls->objectsCount - 1].id = cls->lastObjectId;
+
+	cls->objects[cls->objectsCount - 1].index = cls->objectsCount - 1;
+    cls->lastObjectId++;
+
+    if(cls->initTask) { cls->initTask(&cls->objects[cls->objectsCount - 1]); }
+    
+	return &cls->objects[cls->objectsCount - 1];
 }
 
 void DestroyObject(object_t* object) {
-	for(size_t i = 0; i < object)
+	if(Classes == NULL) { return; }
+
+	if(object->root->cleanupTask) { object->root->cleanupTask(object); }
+
+	free(object->structure);
+	object->structure = NULL;
+
+	for(size_t i = object->index; i < object->root->objectsCount - 1; i++) {
+		object->root->objects[i] = object->root->objects[i + 1];
+		object->root->objects[i].index = i;
+	}
+	object->root->objectsCount--;
+
+	if(object->root->objectsCount > 0) {
+		object->root->objects = realloc(object->root->objects, object->root->objectsCount * sizeof(object_t));
+	}
+	else {
+		free(object->root->objects);
+		object->root->objects = NULL;
+    }
 }

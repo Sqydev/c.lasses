@@ -65,17 +65,21 @@
 #define Class class_t
 #define Object object_t
 
+#define GetStructureFromPtr(type, object) ((type*)((object)->structure))
+// SFV == Struct From Void*
+#define SFV(type, object) GetStructureFromPtr(type, object)
+
 typedef struct class_t class_t;
 typedef struct object_t object_t;
 
 struct class_t {
-	void (*initTask)(void*);
-	void (*cleanupTask)(void*);
+	void (*initTask)(object_t*);
+	void (*cleanupTask)(object_t*);
 
 	object_t* objects;
 	size_t ObjectStructureSizeof;
 	size_t lastObjectId;
-	size_t objetsCount;
+	size_t objectsCount;
 };
 
 struct object_t {
@@ -86,5 +90,13 @@ struct object_t {
 
 	class_t* root;
 };
+
+RLAPI class_t* RegisterClass(size_t objectStructureSizeof, void (*initTask)(object_t*), void (*cleanupTask)(object_t*));
+
+RLAPI void DestroyAllObjectsAndClasses(void);
+
+RLAPI object_t* CreateObject(class_t* cls);
+
+RLAPI void DestroyObject(object_t* object);
 
 #endif
