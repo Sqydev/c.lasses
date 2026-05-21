@@ -77,6 +77,7 @@ struct class_t {
 	void (*cleanupTask)(object_t*);
 
 	object_t* objects;
+
 	size_t ObjectStructureSizeof;
 	size_t lastObjectId;
 	size_t objectsCount;
