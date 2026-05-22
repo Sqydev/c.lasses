@@ -3,18 +3,23 @@
 
 #include "../../include/Classes.h"
 
-typedef class_struct(Entity);
+extern class_t* EntityClass;
+extern class_t* PlayerClass;
+
+typedef struct Entity Entity;
+class_struct(Entity);
 	int positionX;
 	int positionY;
 
-	void (*move)(object_t*, int dx, int dy);
-} Entity;
+	void (*move)(Entity*, int dx, int dy);
+};
 
-typedef class_struct(Player); 
+typedef struct Player Player;
+class_struct(Player); 
 	Entity* parent;
 
-	void (*attack)(object_t* self);
-} Player;
+	void (*attack)(Player*);
+};
 
 void InitEntity(object_t* object);
 void InitPlayer(object_t* object);

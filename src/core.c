@@ -46,6 +46,10 @@ size_t classesLastId = 0;
 
 bool Inited = false;
 
+void* ExecObjectFunction(void* (*function)(object_t* self, ...)) {
+	()\:function
+}
+
 object_t* FindObjectById(class_t* cls, size_t id) {
 	for(size_t i = 0; i < cls->objectsCount; i++) {
 		if(cls->objects[i]->id == id) { return cls->objects[i]; }
