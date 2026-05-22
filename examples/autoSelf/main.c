@@ -12,9 +12,9 @@ int main() {
 
 	Player* player = (Player*)CreateObject(PlayerClass);
 
-	player->attack(player);
+	$(player, attack);
 
 	printf("Player X before move: %d\n", player->parent->positionX);
-	player->parent->move(player->parent, 10, 0);
+	$(player->parent, move, 10, 0);
 	printf("Player X after move dx == 10 X: %d\n", player->parent->positionX);
 }
