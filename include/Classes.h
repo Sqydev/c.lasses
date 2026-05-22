@@ -33,11 +33,11 @@
 *	source or binary distribution.
 */
 
-#ifndef CLASSES_H
-#define CLASSES_H
+#ifndef CLASSES_LIB_H
+#define CLASSES_LIB_H
 
-#define CLASSES_VERSION_MAJOR 0
-#define CLASSES_VERSION_MINOR 1
+#define CLASSES_VERSION_MAJOR 1
+#define CLASSES_VERSION_MINOR 0
 #define CLASSES_VERSION_PATCH 0
 
 // NOTE: Thoes library specyfiers
