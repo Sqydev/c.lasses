@@ -72,6 +72,7 @@ extern "C" {
 #define class_struct(name) struct name { object_t base
 
 #define Self(cls, object) (cls*)object
+#define $(obj, function, ...) (obj)->function((obj), ##__VA_ARGS__)
 
 typedef struct class_t class_t;
 typedef struct object_t object_t;
