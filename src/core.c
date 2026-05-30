@@ -39,16 +39,12 @@
 #include <stdlib.h>
 #include <stdbool.h>
 
-class_t** Classes = NULL;
-size_t classesCount = 0;
-size_t classesLastIndex = 0;
-size_t classesLastId = 0;
+static class_t** Classes = NULL;
+static size_t classesCount = 0;
+static size_t classesLastIndex = 0;
+static size_t classesLastId = 0;
 
 bool Inited = false;
-
-void* ExecObjectFunction(void* (*function)(object_t* self, ...)) {
-	()\:function
-}
 
 object_t* FindObjectById(class_t* cls, size_t id) {
 	for(size_t i = 0; i < cls->objectsCount; i++) {
