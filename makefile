@@ -8,7 +8,8 @@ MAKEFLAGS += --no-builtin-rules --warn-undefined-variables
 PROFILE ?= local
 LIBC    ?= glibc
 CC ?= gcc
-STD ?= -std=c99
+C_STD ?= c99
+STD := -std=$(C_STD)
 POSIX_C_SRC ?= -D_POSIX_C_SOURCE=200809L
 
 LIB_NAME := c_lasses
@@ -59,8 +60,8 @@ SRC_DIR := src
 OBJ_DIR := obj
 BIN_DIR := lib
 
-OBJ_SUBDIR := $(OBJ_DIR)/$(PROFILE)-$(LIBC)
-BIN_SUBDIR := $(PROFILE)
+OBJ_SUBDIR := $(OBJ_DIR)/$(PROFILE)-$(LIBC)-$(C_STD)
+BIN_SUBDIR := $(PROFILE)-$(C_STD)
 
 TEST_DIR := tester
 TEST_SRC := $(shell find $(TEST_DIR)/src -name '*.c')
@@ -84,15 +85,31 @@ DEP := $(OBJ:.o=.d)
 	docker-windows docker-windows-static \
 	docker-bleeding docker-normal docker-stable \
 	docker-bleeding-musl docker-normal-musl docker-stable-musl \
-	docker-static-musl
+	docker-static-musl \
+	build-c99 build-c11 \
+	local-build-all \
+	docker-bleeding-all docker-normal-all docker-stable-all \
 
 # ==== Targets ====
 
 all: local-build docker-bleeding docker-normal docker-stable \
      docker-bleeding-musl docker-normal-musl docker-stable-musl \
-     docker-static-musl docker-windows tester tester-lib
+     docker-static-musl docker-windows tester tester-lib \
+	 local-build-all docker-bleeding docker-normal docker-stable \
+     local-build-all \
+     docker-bleeding-all docker-normal-all docker-stable-all \
 
 build: static shared
+
+build-c99:
+	$(MAKE) C_STD=c99 build
+
+build-c11:
+	$(MAKE) C_STD=c11 build
+
+local-build-all:
+	$(MAKE) PROFILE=local LIBC=glibc C_STD=c99 build
+	$(MAKE) PROFILE=local LIBC=glibc C_STD=c11 build
 
 local-build:
 	$(MAKE) PROFILE=local LIBC=glibc build
@@ -214,6 +231,18 @@ docker-stable-musl:
 
 docker-static-musl:
 	docker run $(DOCKER_ROOT) alpine:3.19 sh -c "apk add --no-cache build-base musl-dev && $(MAKE) PROFILE=static LIBC=static-musl build $(FIX_PERMS)"
+
+docker-bleeding-all:
+	$(MAKE) PROFILE=bleeding LIBC=glibc C_STD=c99 build
+	$(MAKE) PROFILE=bleeding LIBC=glibc C_STD=c11 build
+
+docker-normal-all:
+	$(MAKE) PROFILE=normal LIBC=glibc C_STD=c99 build
+	$(MAKE) PROFILE=normal LIBC=glibc C_STD=c11 build
+
+docker-stable-all:
+	$(MAKE) PROFILE=stable LIBC=glibc C_STD=c99 build
+	$(MAKE) PROFILE=stable LIBC=glibc C_STD=c11 build
 
 # ==== Clean ====
 

@@ -1,7 +1,7 @@
 CC = gcc
 
 CFLAGS = -Wall -Wextra -I../../include
-LDFLAGS = ../../lib/local/libc_lasses.a
+LDFLAGS = ../../lib/local-c99/libc_lasses.a
 
 TARGET = autoSelf
 SRC = $(wildcard *.c)
