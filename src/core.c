@@ -36,6 +36,7 @@
 #include "../include/Classes.h"
 
 #include <errno.h>
+#include <stdarg.h>
 #include <stdlib.h>
 #include <stdbool.h>
 
@@ -66,7 +67,7 @@ void ForEachObject(class_t* cls, void (*function)(object_t*)) {
 	}
 }
 
-class_t* RegisterClass(size_t objectSizeof, void (*initTask)(object_t*), void (*cleanupTask)(object_t*)) {
+class_t* RegisterClass(size_t objectSizeof, void (*initTask)(object_t*, va_list va), void (*cleanupTask)(object_t*)) {
 	classesCount++;
 
 	class_t** tmp_classes = realloc(Classes, classesCount * sizeof(class_t*));
@@ -122,7 +123,7 @@ void DestroyAllClasses(void) {
 	Inited = false;
 }
 
-object_t* CreateObject(class_t* cls) {
+object_t* CreateObject(class_t* cls, ...) {
 	if(!Inited) { atexit(DestroyAllClasses); Inited = true; }
 
 	cls->objectsCount++;
@@ -148,14 +149,19 @@ object_t* CreateObject(class_t* cls) {
 	cls->objects[cls->objectsCount - 1]->index = cls->objectsCount - 1;
     cls->lastObjectId++;
 
+	va_list va;
+	va_start(va, cls);
+
     if(cls->initTask) {
-		cls->initTask(cls->objects[cls->objectsCount - 1]);
+		cls->initTask(cls->objects[cls->objectsCount - 1], va);
 	}
+
+	va_end(va);
     
 	return cls->objects[cls->objectsCount - 1];
 }
 
-void DestroyObject(object_t* object) {
+void DestroyObject(object_t* object, ...) {
 	if(Classes == NULL) { return; }
 
 	if(object->root->cleanupTask) { object->root->cleanupTask(object); }

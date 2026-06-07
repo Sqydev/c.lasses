@@ -65,6 +65,7 @@ extern "C" {
 #endif
 
 #include <stddef.h>
+#include <stdarg.h>
 
 #define Class class_t
 #define Object object_t
@@ -81,7 +82,7 @@ struct class_t {
 	size_t id;
 	size_t index;
 
-	void (*initTask)(object_t*);
+	void (*initTask)(object_t*, va_list va);
 	void (*cleanupTask)(object_t*);
 
 	object_t** objects;
@@ -99,10 +100,10 @@ struct object_t {
 	class_t* root;
 };
 
-RLAPI class_t* RegisterClass(size_t objectSizeof, void (*initTask)(object_t*), void (*cleanupTask)(object_t*));
+RLAPI class_t* RegisterClass(size_t objectSizeof, void (*initTask)(object_t*, va_list va), void (*cleanupTask)(object_t*));
 RLAPI void DestroyAllClasses(void);
-RLAPI object_t* CreateObject(class_t* cls);
-RLAPI void DestroyObject(object_t* object);
+RLAPI object_t* CreateObject(class_t* cls, ...);
+RLAPI void DestroyObject(object_t* object, ...);
 RLAPI void DestroyClass(class_t* cls);
 
 #ifdef __cplusplus

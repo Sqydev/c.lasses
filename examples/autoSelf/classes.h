@@ -21,7 +21,7 @@ class_struct(Player);
 	void (*attack)(Player*);
 };
 
-void InitEntity(object_t* object);
-void InitPlayer(object_t* object);
+void InitEntity(object_t* object, ...);
+void InitPlayer(object_t* object, ...);
 
 #endif

@@ -7,7 +7,7 @@ void MoveEntity(Entity* self, int dx, int dy) {
 	self->positionY = dy;
 }
 
-void InitEntity(object_t* object) {
+void InitEntity(object_t* object, ...) {
 	Entity* self = Self(Entity, object);
 
 	self->positionX = 0;
